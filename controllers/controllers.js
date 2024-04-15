@@ -21,17 +21,13 @@ function getEndpoints(req, res, next) {
 
 function getArticleById(req, res, next) {
   const { article_id } = req.params;
-  if (Number.isNaN(article_id - 0)) {
-    next({ status: 400, msg: "bad request" });
-  } else {
-    return selectArticleById(article_id)
-      .then((article) => {
-        res.status(200).send({ article });
-      })
-      .catch((err) => {
-        next(err);
-      });
-  }
+  return selectArticleById(article_id)
+    .then((article) => {
+      res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
 }
 
 function getAllArticles(req, res, next) {
