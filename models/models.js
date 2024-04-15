@@ -7,4 +7,20 @@ function selectTopics() {
   });
 }
 
-module.exports = { selectTopics };
+function selectArticleById(articleId) {
+  return db
+    .query(
+      `
+    SELECT * 
+    FROM articles
+    WHERE articles.article_id = $1 ;`,
+      [articleId]
+    )
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "not found" });
+      } else return rows[0];
+    });
+}
+
+module.exports = { selectTopics, selectArticleById };
