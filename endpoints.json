@@ -2,6 +2,10 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api"
   },
+  "GET /api/healthcheck": {
+    "description": "confirms server is online",
+    "exampleResponse": { "msg": "server is online" }
+  },
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],

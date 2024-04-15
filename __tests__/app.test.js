@@ -3,6 +3,7 @@ const db = require("../db/connection");
 const app = require("../app");
 const seed = require("../db/seeds/seed");
 const seedTestData = require("../db/data/test-data");
+const endpointsData = require("../endpoints.json");
 
 beforeEach(() => {
   return seed(seedTestData);
@@ -23,9 +24,9 @@ describe("/api/healthcheck", () => {
       });
   });
 });
-describe("/api/", () => {
+describe("/api/incorrect_endpoint", () => {
   test("GET 404: responds with 404 status if endpoint doesn't exist", () => {
-    return request(app).get("/api/incorrect_end_point").expect(404);
+    return request(app).get("/api/incorrect_endpoint").expect(404);
   });
 });
 describe("/api/topics", () => {
@@ -68,5 +69,18 @@ describe("/api/topics", () => {
           });
         });
     });
+  });
+});
+describe("/api", () => {
+  test("GET 200: responds with 200 status", () => {
+    return request(app).get("/api").expect(200);
+  });
+  test("GET 200: responds with object with property of endpoints which contains the contents of endpoints.json file", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endpoints).toEqual(endpointsData);
+      });
   });
 });
