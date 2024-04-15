@@ -1,4 +1,8 @@
-const { selectTopics, selectArticleById } = require("../models/models");
+const {
+  selectTopics,
+  selectArticleById,
+  selectAllArticles,
+} = require("../models/models");
 const endpoints = require("../endpoints.json");
 
 function healthCheck(req, res, next) {
@@ -30,4 +34,16 @@ function getArticleById(req, res, next) {
   }
 }
 
-module.exports = { healthCheck, getAllTopics, getEndpoints, getArticleById };
+function getAllArticles(req, res, next) {
+  return selectAllArticles().then((articles) => {
+    res.status(200).send({ articles });
+  });
+}
+
+module.exports = {
+  healthCheck,
+  getAllTopics,
+  getEndpoints,
+  getArticleById,
+  getAllArticles,
+};

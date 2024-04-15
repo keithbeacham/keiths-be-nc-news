@@ -129,7 +129,7 @@ describe("/api/articles", () => {
           expect(article.article_id).toBe(2);
         });
     });
-    test("GET 404: responds with 400 and msg 'not found' if out of range query sent", () => {
+    test("GET 404: responds with 404 and msg 'not found' if out of range query sent", () => {
       return request(app)
         .get("/api/articles/9999")
         .expect(404)
@@ -144,6 +144,52 @@ describe("/api/articles", () => {
         .then(({ body }) => {
           expect(body.msg).toBe("bad request");
         });
+    });
+  });
+  describe("/api/articles", () => {
+    describe("GET", () => {
+      test("GET 200: responds with 200 status", () => {
+        return request(app).get("/api/articles").expect(200);
+      });
+      test("GET 200: responds with array of all articles, length 13", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(13);
+          });
+      });
+      test("GET 200: responds with array of articles each having author, title, article_id, topic, created_at, votes, article_img_url, comment_count properties ", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles.length).toBe(13);
+            articles.forEach((article) => {
+              expect(article).toMatchObject({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(String),
+              });
+            });
+          });
+      });
+      test("GET 200: responds with array of articles sorted by created_at in descending order", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      });
     });
   });
 });
