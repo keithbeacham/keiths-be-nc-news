@@ -28,7 +28,7 @@ function selectAllArticles() {
     .query(
       `
     SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, 
-    COUNT(comments.article_id) AS comment_count
+    COUNT(comments.article_id)::INT AS comment_count
     FROM articles
     LEFT JOIN comments 
     ON articles.article_id = comments.article_id 
