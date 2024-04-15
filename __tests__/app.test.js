@@ -84,3 +84,66 @@ describe("/api", () => {
       });
   });
 });
+describe("/api/articles", () => {
+  describe("/api/articles/:article_id", () => {
+    test("GET 200: responds with 200 status", () => {
+      return request(app).get("/api/articles/1").expect(200);
+    });
+    test("GET 200: responds with a single article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("body");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+        });
+    });
+    test("GET 200: responds with a single article object with values of type as follows: author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.body).toBe("string");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+        });
+    });
+    test("GET 200: responds with a single article object with values of article_id property matching the id sent", () => {
+      return request(app)
+        .get("/api/articles/2")
+        .expect(200)
+        .then(({ body }) => {
+          const { article } = body;
+          expect(article.article_id).toBe(2);
+        });
+    });
+    test("GET 404: responds with 400 and msg 'not found' if out of range query sent", () => {
+      return request(app)
+        .get("/api/articles/9999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+    test("GET 400: responds with 400 and msg 'bad request' if invalid query type sent", () => {
+      return request(app)
+        .get("/api/articles/invalid_type")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+  });
+});
