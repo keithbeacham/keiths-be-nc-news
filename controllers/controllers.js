@@ -3,9 +3,9 @@ const {
   selectArticleById,
   selectAllArticles,
   selectCommentsByArticleId,
-  checkArticleIdExists,
   insertCommentByArticleId,
   updateArticleById,
+  checkIfUserExists,
 } = require("../models/models");
 const endpoints = require("../endpoints.json");
 
@@ -44,7 +44,7 @@ function getCommentsByArticleId(req, res, next) {
   const { article_id } = req.params;
   return Promise.all([
     selectCommentsByArticleId(article_id),
-    checkArticleIdExists(article_id),
+    selectArticleById(article_id),
   ])
     .then(([comments]) => {
       res.status(200).send({ comments });
@@ -60,8 +60,11 @@ function postCommentByArticleId(req, res, next) {
   if (!newComment.username || !newComment.body) {
     next({ status: 400, msg: "invalid body" });
   }
-  return insertCommentByArticleId(article_id, newComment)
-    .then((comment) => {
+  return Promise.all([
+    insertCommentByArticleId(article_id, newComment),
+    checkIfUserExists(newComment.username),
+  ])
+    .then(([comment]) => {
       res.status(201).send({ comment });
     })
     .catch((err) => {
@@ -76,8 +79,11 @@ function patchArticleById(req, res, next) {
   if (!newVote.inc_votes) {
     next({ status: 400, msg: "invalid body" });
   }
-  return updateArticleById(article_id, newVote)
-    .then((article) => {
+  return Promise.all([
+    updateArticleById(article_id, newVote),
+    selectArticleById(article_id),
+  ])
+    .then(([article]) => {
       res.status(200).send({ article });
     })
     .catch((err) => {

@@ -62,7 +62,7 @@
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "inserts the given comment object into the database referencing the article_id. Expects a request object containing username and body, returns the corresponding comment object",
+    "description": "inserts the given comment object into the database referencing the article_id. Expects a request object containing username and body, returns the corresponding comment object. Only accepts a comment from an existing username",
     "exampleRequest": {
       "username": "butter_bridge",
       "body": "new body"

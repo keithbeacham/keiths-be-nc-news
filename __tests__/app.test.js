@@ -90,7 +90,7 @@ describe("/api/articles", () => {
       test("GET 200: responds with 200 status", () => {
         return request(app).get("/api/articles/1").expect(200);
       });
-      test("GET 200: responds with a single article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+      test("GET 200: responds with a single article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url, with article_id matching the id sent", () => {
         return request(app)
           .get("/api/articles/1")
           .expect(200)
@@ -99,22 +99,13 @@ describe("/api/articles", () => {
             expect(article).toMatchObject({
               author: expect.any(String),
               title: expect.any(String),
-              article_id: expect.any(Number),
+              article_id: 1,
               body: expect.any(String),
               topic: expect.any(String),
               created_at: expect.any(String),
               votes: expect.any(Number),
               article_img_url: expect.any(String),
             });
-          });
-      });
-      test("GET 200: responds with a single article object with values of article_id property matching the id sent", () => {
-        return request(app)
-          .get("/api/articles/2")
-          .expect(200)
-          .then(({ body }) => {
-            const { article } = body;
-            expect(article.article_id).toBe(2);
           });
       });
       test("GET 404: responds with 404 and msg 'not found' if out of range query sent", () => {
@@ -185,7 +176,7 @@ describe("/api/articles", () => {
             expect(body.msg).toBe("bad request");
           });
       });
-      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object is empty", () => {
+      test("PATCH 400: responds with 400 and msg 'bad request' when request object is empty", () => {
         const patchObj = {};
         return request(app)
           .patch("/api/articles/2")
@@ -277,18 +268,16 @@ describe("/api/articles", () => {
         const article_id = 1;
         return request(app)
           .get(`/api/articles/${article_id}/comments`)
-          .expect(200)
           .then(({ body: { comments } }) => {
             expect(comments.length).toBe(11);
             comments.forEach((comment) => {
-              expect(comment.article_id).toBe(article_id);
               expect(comment).toMatchObject({
                 comment_id: expect.any(Number),
                 votes: expect.any(Number),
                 created_at: expect.any(String),
                 author: expect.any(String),
                 body: expect.any(String),
-                article_id: expect.any(Number),
+                article_id: article_id,
               });
             });
           });
@@ -296,17 +285,15 @@ describe("/api/articles", () => {
       test("GET 200: responds with an array of objects ordered by created_at in descending order", () => {
         return request(app)
           .get("/api/articles/1/comments")
-          .expect(200)
           .then(({ body: { comments } }) => {
             expect(comments).toBeSortedBy("created_at", { descending: true });
           });
       });
-      test("GET 200: responds with a 200 status and an empty array if article_id exists but has no associated comments", () => {
+      test("GET 200: responds with an empty array if article_id exists but has no associated comments", () => {
         return request(app)
           .get("/api/articles/2/comments")
-          .expect(200)
           .then(({ body: { comments } }) => {
-            expect(comments.length).toBe(0);
+            expect(comments).toEqual([]);
           });
       });
       test("GET 400: responds with 400 and msg 'bad request' when sent an invalid (ie. wrong type) article_id", () => {
@@ -338,14 +325,13 @@ describe("/api/articles", () => {
           .send(newComment)
           .expect(201)
           .then(({ body: { comment } }) => {
-            expect(comment.article_id).toBe(article_id);
             expect(comment).toMatchObject({
               comment_id: expect.any(Number),
               votes: expect.any(Number),
               created_at: expect.any(String),
               author: expect.any(String),
               body: expect.any(String),
-              article_id: expect.any(Number),
+              article_id: article_id,
             });
           });
       });
@@ -401,7 +387,7 @@ describe("/api/articles", () => {
             expect(body.msg).toBe("invalid body");
           });
       });
-      test("POST 404: returns 404 and 'username not found' when sent a username which doesn't exist in the database", () => {
+      test("POST 404: returns 404 and 'not found' when sent a username which doesn't exist in the database", () => {
         const article_id = 1;
         const newComment = {
           body: "comment body",
@@ -412,7 +398,7 @@ describe("/api/articles", () => {
           .send(newComment)
           .expect(404)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe("username not found");
+            expect(msg).toBe("not found");
           });
       });
       test("POST 400: responds with 400 and msg 'bad request' when sent an invalid (ie. wrong type) article_id", () => {
