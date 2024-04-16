@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-// const format = require("pg-format")
+const format = require("pg-format");
 
 function selectTopics() {
   return db.query(`SELECT * FROM topics ;`).then(({ rows }) => {
@@ -64,10 +64,40 @@ function checkArticleIdExists(articleId) {
     });
 }
 
+function insertCommentByArticleId(articleId, newComment) {
+  return checkIfUserExists(newComment.username)
+    .then(() => {
+      return db
+        .query(
+          ` INSERT INTO comments (body, author, article_id)
+            VALUES ($1, $2, $3)
+            RETURNING * ;`,
+          [newComment.body, newComment.username, articleId]
+        )
+        .then(({ rows }) => {
+          return rows[0];
+        });
+    })
+    .catch((err) => {
+      return Promise.reject(err);
+    });
+}
+
+function checkIfUserExists(username) {
+  return db
+    .query(`SELECT * FROM users WHERE username = $1`, [username])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "username not found" });
+      }
+    });
+}
+
 module.exports = {
   selectTopics,
   selectArticleById,
   selectAllArticles,
   selectCommentsByArticleId,
   checkArticleIdExists,
+  insertCommentByArticleId,
 };

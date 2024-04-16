@@ -243,11 +243,120 @@ describe("/api/articles", () => {
       });
     });
     describe("POST", () => {
-      //   test("POST 400: returns 400 when no object is sent", () => {
-      //     return request(app)
-      //       .post("/api/articles/:article_id/comments")
-      //       .expect(400);
-      //   });
+      test("POST 201: returns 201 and the inserted comment object when sent a valid comment object", () => {
+        const article_id = 1;
+        const newComment = {
+          body: "comment body",
+          username: "lurker",
+        };
+        return request(app)
+          .post(`/api/articles/${article_id}/comments`)
+          .send(newComment)
+          .expect(201)
+          .then(({ body: { comment } }) => {
+            expect(comment.article_id).toBe(article_id);
+            expect(comment).toMatchObject({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              article_id: expect.any(Number),
+            });
+          });
+      });
+      test("POST 201: check the comment has been added to the database", () => {
+        const newComment = {
+          body: "comment body",
+          username: "lurker",
+        };
+        return request(app)
+          .post(`/api/articles/1/comments`)
+          .send(newComment)
+          .expect(201)
+          .then(() => {
+            return request(app)
+              .get(`/api/articles/1/comments`)
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).toBe(12);
+              });
+          });
+      });
+      test("POST 400: returns 400 and 'invalid body' message when no object is sent", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("invalid body");
+          });
+      });
+      test("POST 400: returns 400 and 'invalid body' message when object is sent without username property", () => {
+        const article_id = 1;
+        const newComment = {
+          body: "comment body",
+        };
+        return request(app)
+          .post(`/api/articles/${article_id}/comments`)
+          .send(newComment)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("invalid body");
+          });
+      });
+      test("POST 400: returns 400 and 'invalid body' message when object is sent without body property", () => {
+        const article_id = 1;
+        const newComment = {
+          username: "lurker",
+        };
+        return request(app)
+          .post(`/api/articles/${article_id}/comments`)
+          .send(newComment)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("invalid body");
+          });
+      });
+      test("POST 404: returns 404 and 'username not found' when sent a username which doesn't exist in the database", () => {
+        const article_id = 1;
+        const newComment = {
+          body: "comment body",
+          username: "new_user",
+        };
+        return request(app)
+          .post(`/api/articles/${article_id}/comments`)
+          .send(newComment)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("username not found");
+          });
+      });
+      test("POST 400: responds with 400 and msg 'bad request' when sent an invalid (ie. wrong type) article_id", () => {
+        const newComment = {
+          username: "lurker",
+          body: "comment body",
+        };
+        return request(app)
+          .post("/api/articles/invalid_id/comments")
+          .send(newComment)
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("POST 404: responds with 404 and msg 'not found' when sent a valid article_id which doesn't exist in the database", () => {
+        const newComment = {
+          username: "lurker",
+          body: "comment body",
+        };
+        return request(app)
+          .post("/api/articles/9999/comments")
+          .send(newComment)
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
+          });
+      });
     });
   });
 });

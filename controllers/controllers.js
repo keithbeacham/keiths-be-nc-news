@@ -4,6 +4,7 @@ const {
   selectAllArticles,
   selectCommentsByArticleId,
   checkArticleIdExists,
+  insertCommentByArticleId,
 } = require("../models/models");
 const endpoints = require("../endpoints.json");
 
@@ -52,6 +53,21 @@ function getCommentsByArticleId(req, res, next) {
     });
 }
 
+function postCommentByArticleId(req, res, next) {
+  const { article_id } = req.params;
+  const { body: newComment } = req;
+  if (!newComment.username || !newComment.body) {
+    next({ status: 400, msg: "invalid body" });
+  }
+  return insertCommentByArticleId(article_id, newComment)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   healthCheck,
   getAllTopics,
@@ -59,4 +75,5 @@ module.exports = {
   getArticleById,
   getAllArticles,
   getCommentsByArticleId,
+  postCommentByArticleId,
 };
