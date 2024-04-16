@@ -2,6 +2,8 @@ const {
   selectTopics,
   selectArticleById,
   selectAllArticles,
+  selectCommentsByArticleId,
+  checkArticleIdExists,
 } = require("../models/models");
 const endpoints = require("../endpoints.json");
 
@@ -36,10 +38,25 @@ function getAllArticles(req, res, next) {
   });
 }
 
+function getCommentsByArticleId(req, res, next) {
+  const { article_id } = req.params;
+  return Promise.all([
+    selectCommentsByArticleId(article_id),
+    checkArticleIdExists(article_id),
+  ])
+    .then(([comments]) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   healthCheck,
   getAllTopics,
   getEndpoints,
   getArticleById,
   getAllArticles,
+  getCommentsByArticleId,
 };

@@ -40,4 +40,34 @@ function selectAllArticles() {
     });
 }
 
-module.exports = { selectTopics, selectArticleById, selectAllArticles };
+function selectCommentsByArticleId(articleId) {
+  return db
+    .query(
+      `
+    SELECT * FROM comments 
+    WHERE article_id = $1 
+    ORDER BY created_at DESC ;`,
+      [articleId]
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+}
+
+function checkArticleIdExists(articleId) {
+  return db
+    .query(`SELECT title FROM articles WHERE article_id = $1`, [articleId])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "not found" });
+      }
+    });
+}
+
+module.exports = {
+  selectTopics,
+  selectArticleById,
+  selectAllArticles,
+  selectCommentsByArticleId,
+  checkArticleIdExists,
+};
