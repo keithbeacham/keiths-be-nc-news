@@ -60,5 +60,22 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "inserts the given comment object into the database referencing the article_id. Expects a request object containing username and body, returns the corresponding comment object",
+    "exampleRequest": {
+      "username": "butter_bridge",
+      "body": "new body"
+    },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 14,
+        "body": "new body",
+        "votes": 0,
+        "author": "butter_bridge",
+        "article_id": 6,
+        "created_at": 1602433380000
+      }
+    }
   }
 }
