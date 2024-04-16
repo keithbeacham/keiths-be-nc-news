@@ -54,6 +54,44 @@ function selectCommentsByArticleId(articleId) {
     });
 }
 
+function insertCommentByArticleId(articleId, newComment) {
+  return checkIfUserExists(newComment.username)
+    .then(() => {
+      return db.query(
+        ` INSERT INTO comments (body, author, article_id)
+            VALUES ($1, $2, $3)
+            RETURNING * ;`,
+        [newComment.body, newComment.username, articleId]
+      );
+    })
+    .then(({ rows }) => {
+      return rows[0];
+    })
+    .catch((err) => {
+      return Promise.reject(err);
+    });
+}
+
+function updateArticleById(articleId, newVote) {
+  return checkArticleIdExists(articleId)
+    .then(() => {
+      return db.query(
+        `
+        UPDATE articles 
+        SET votes = votes + $1
+        WHERE article_id = $2 
+        RETURNING * ;`,
+        [newVote.inc_votes, articleId]
+      );
+    })
+    .then(({ rows }) => {
+      return rows[0];
+    })
+    .catch((err) => {
+      return Promise.reject(err);
+    });
+}
+
 function checkArticleIdExists(articleId) {
   return db
     .query(`SELECT title FROM articles WHERE article_id = $1`, [articleId])
@@ -61,25 +99,6 @@ function checkArticleIdExists(articleId) {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "not found" });
       }
-    });
-}
-
-function insertCommentByArticleId(articleId, newComment) {
-  return checkIfUserExists(newComment.username)
-    .then(() => {
-      return db
-        .query(
-          ` INSERT INTO comments (body, author, article_id)
-            VALUES ($1, $2, $3)
-            RETURNING * ;`,
-          [newComment.body, newComment.username, articleId]
-        )
-        .then(({ rows }) => {
-          return rows[0];
-        });
-    })
-    .catch((err) => {
-      return Promise.reject(err);
     });
 }
 
@@ -100,4 +119,5 @@ module.exports = {
   selectCommentsByArticleId,
   checkArticleIdExists,
   insertCommentByArticleId,
+  updateArticleById,
 };

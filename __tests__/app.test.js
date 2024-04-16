@@ -86,51 +86,135 @@ describe("/api", () => {
 });
 describe("/api/articles", () => {
   describe("/api/articles/:article_id", () => {
-    test("GET 200: responds with 200 status", () => {
-      return request(app).get("/api/articles/1").expect(200);
-    });
-    test("GET 200: responds with a single article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          const { article } = body;
-          expect(article).toMatchObject({
-            author: expect.any(String),
-            title: expect.any(String),
-            article_id: expect.any(Number),
-            body: expect.any(String),
-            topic: expect.any(String),
-            created_at: expect.any(String),
-            votes: expect.any(Number),
-            article_img_url: expect.any(String),
+    describe("GET", () => {
+      test("GET 200: responds with 200 status", () => {
+        return request(app).get("/api/articles/1").expect(200);
+      });
+      test("GET 200: responds with a single article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            const { article } = body;
+            expect(article).toMatchObject({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              body: expect.any(String),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+            });
           });
-        });
+      });
+      test("GET 200: responds with a single article object with values of article_id property matching the id sent", () => {
+        return request(app)
+          .get("/api/articles/2")
+          .expect(200)
+          .then(({ body }) => {
+            const { article } = body;
+            expect(article.article_id).toBe(2);
+          });
+      });
+      test("GET 404: responds with 404 and msg 'not found' if out of range query sent", () => {
+        return request(app)
+          .get("/api/articles/9999")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("not found");
+          });
+      });
+      test("GET 400: responds with 400 and msg 'bad request' if invalid query type sent", () => {
+        return request(app)
+          .get("/api/articles/invalid_type")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("bad request");
+          });
+      });
     });
-    test("GET 200: responds with a single article object with values of article_id property matching the id sent", () => {
-      return request(app)
-        .get("/api/articles/2")
-        .expect(200)
-        .then(({ body }) => {
-          const { article } = body;
-          expect(article.article_id).toBe(2);
-        });
-    });
-    test("GET 404: responds with 404 and msg 'not found' if out of range query sent", () => {
-      return request(app)
-        .get("/api/articles/9999")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("not found");
-        });
-    });
-    test("GET 400: responds with 400 and msg 'bad request' if invalid query type sent", () => {
-      return request(app)
-        .get("/api/articles/invalid_type")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("bad request");
-        });
+    describe("PATCH", () => {
+      test("PATCH 200: responds with 200 status and article object when valid request object sent", () => {
+        const patchObj = { inc_votes: 5 };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(patchObj)
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).toMatchObject({
+              author: expect.any(String),
+              title: expect.any(String),
+              article_id: expect.any(Number),
+              body: expect.any(String),
+              topic: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+            });
+          });
+      });
+      test("PATCH 200: returned article object has same article_id as that sent and votes has been incremented by value sent", () => {
+        const patchObj = { inc_votes: 5 };
+        return request(app)
+          .patch("/api/articles/1")
+          .send(patchObj)
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.article_id).toBe(1);
+            expect(article.votes).toBe(105);
+          });
+      });
+      test("PATCH 404: responds with 404 and msg 'not found' when sent a valid article_id which does not exist in the database", () => {
+        const patchObj = { inc_votes: 5 };
+        return request(app)
+          .patch("/api/articles/9999")
+          .send(patchObj)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("not found");
+          });
+      });
+      test("PATCH 400: responds with 400 and msg 'bad request' when invalid article_id type sent", () => {
+        const patchObj = { inc_votes: 5 };
+        return request(app)
+          .patch("/api/articles/invalid_type")
+          .send(patchObj)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("bad request");
+          });
+      });
+      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object is empty", () => {
+        const patchObj = {};
+        return request(app)
+          .patch("/api/articles/2")
+          .send(patchObj)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("invalid body");
+          });
+      });
+      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object does not include <inc_votes> property", () => {
+        const patchObj = { more_votes: 100 };
+        return request(app)
+          .patch("/api/articles/2")
+          .send(patchObj)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("invalid body");
+          });
+      });
+      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object does includes <inc_votes> property with incorrect type of value", () => {
+        const patchObj = { inc_votes: "invalid_type" };
+        return request(app)
+          .patch("/api/articles/2")
+          .send(patchObj)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("bad request");
+          });
+      });
     });
   });
   describe("/api/articles", () => {

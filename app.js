@@ -7,6 +7,7 @@ const {
   getAllArticles,
   getCommentsByArticleId,
   postCommentByArticleId,
+  patchArticleById,
 } = require("./controllers/controllers");
 
 const app = express();
@@ -20,6 +21,7 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+app.patch("/api/articles/:article_id", patchArticleById);
 
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
@@ -40,10 +42,6 @@ app.use((err, req, res, next) => {
   if (err.code === "23503") {
     res.status(404).send({ msg: "not found" });
   } else next(err);
-});
-app.use((err, req, res, next) => {
-  console.log("error code>>", err.code);
-  next(err);
 });
 
 module.exports = app;
