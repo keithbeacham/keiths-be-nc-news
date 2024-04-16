@@ -177,10 +177,9 @@ describe("/api/articles", () => {
           });
       });
       test("PATCH 400: responds with 400 and msg 'bad request' when request object is empty", () => {
-        const patchObj = {};
         return request(app)
           .patch("/api/articles/2")
-          .send(patchObj)
+          .send({})
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("invalid body");
@@ -196,7 +195,7 @@ describe("/api/articles", () => {
             expect(body.msg).toBe("invalid body");
           });
       });
-      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object does includes <inc_votes> property with incorrect type of value", () => {
+      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object includes <inc_votes> property with incorrect type of value", () => {
         const patchObj = { inc_votes: "invalid_type" };
         return request(app)
           .patch("/api/articles/2")
