@@ -6,7 +6,7 @@ const {
   insertCommentByArticleId,
   updateArticleById,
   checkIfUserExists,
-} = require("../models/models");
+} = require("../models/articles.models");
 const endpoints = require("../endpoints.json");
 
 function healthCheck(req, res, next) {
