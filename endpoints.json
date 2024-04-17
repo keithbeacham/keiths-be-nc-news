@@ -99,5 +99,18 @@
   "DELETE /api/comments/:comment_id": {
     "description": "deletes the given comment in the database, returns 204 and no body content.",
     "exampleResponse": {}
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users including username, name and avatar_url",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "rogersop",
+          "name": "paul",
+          "avatar_url": "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+        }
+      ]
+    }
   }
 }
