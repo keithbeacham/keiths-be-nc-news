@@ -252,7 +252,7 @@ describe("/api/articles", () => {
           });
       });
     });
-    describe("GET ?", () => {
+    describe("GET ?topic", () => {
       test("GET 200: responds with 12 articles when sent query string of topic=mitch", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
@@ -287,12 +287,12 @@ describe("/api/articles", () => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
           });
       });
-      test("GET 400: reponds with status 400 and msg 'bad data' when query is invalid", () => {
+      test("GET 200: responds with status 200 and unfiltered array of all articles when query is not 'topic'", () => {
         return request(app)
           .get("/api/articles?invalid_key=mitch")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("bad data");
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(13);
           });
       });
       test("GET 200: reponds with status 200 and empty array when query value is not in database", () => {
@@ -301,6 +301,68 @@ describe("/api/articles", () => {
           .expect(200)
           .then(({ body: { articles } }) => {
             expect(articles).toEqual([]);
+          });
+      });
+    });
+    describe("GET ?sort_by & order", () => {
+      test("GET 200: sorts by created_at descending by default", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+      test("GET 200: sorts by sort_by key in descending order by default", () => {
+        return request(app)
+          .get("/api/articles?sort_by=topic")
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("topic", { descending: true });
+          });
+      });
+      test("GET 200: sorts by sort_by key in descending order when order=DESC", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes&order=DESC")
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("votes", { descending: true });
+          });
+      });
+      test("GET 200: sorts by sort_by key in ascending order when order=ASC", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author&order=ASC")
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("author", { descending: false });
+          });
+      });
+      test("GET 200: sorts by created_at in ascending order when no sort_by sent and order=ASC", () => {
+        return request(app)
+          .get("/api/articles?order=ASC")
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("created_at", { descending: false });
+          });
+      });
+      test("GET 200: sorts by sort_by key and orders by order key when topic filter query also sent", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&sort_by=votes&order=ASC")
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            expect(articles).toBeSortedBy("votes", { descending: false });
+          });
+      });
+      test("GET 400: returns 400 and message 'bad data' when invalid sort_by key sent", () => {
+        return request(app)
+          .get("/api/articles?sort_by=invalid_key")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad data");
+          });
+      });
+      test("GET 400: returns 400 and message 'bad data' when invalid order key sent", () => {
+        return request(app)
+          .get("/api/articles?sort_by=votes&order=invalid_key")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad data");
           });
       });
     });

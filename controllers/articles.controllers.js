@@ -35,14 +35,8 @@ function getArticleById(req, res, next) {
 }
 
 function getArticles(req, res, next) {
-  if (
-    Object.keys(req.query).length &&
-    !Object.keys(req.query).includes("topic")
-  ) {
-    next({ status: 400, msg: "bad data" });
-  }
-  const { topic } = req.query;
-  return selectArticles(topic)
+  const { topic, sort_by, order } = req.query;
+  return selectArticles(topic, sort_by, order)
     .then((articles) => {
       res.status(200).send({ articles });
     })
