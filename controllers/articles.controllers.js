@@ -76,9 +76,9 @@ function patchArticleById(req, res, next) {
   const { article_id } = req.params;
   const { body: newVote } = req;
 
-  if (!newVote.inc_votes) {
-    next({ status: 400, msg: "invalid body" });
-  }
+  // if (!newVote.inc_votes) {
+  //   next({ status: 400, msg: "invalid body" });
+  // }
   return Promise.all([
     updateArticleById(article_id, newVote),
     selectArticleById(article_id),

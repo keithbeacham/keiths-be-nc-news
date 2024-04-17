@@ -7,13 +7,26 @@ function customErrorHandler(err, req, res, next) {
 }
 
 function psqlErrorHandler(err, req, res, next) {
-  if (err.code === "22P02") {
-    res.status(400).send({ msg: "bad request" });
-  } else if (err.code === "42601") {
-    res.status(400).send({ msg: "invalid body" });
-  } else if (err.code === "23503") {
-    res.status(404).send({ msg: "not found" });
-  } else next(err);
+  switch (err.code) {
+    case "22P02":
+      res.status(400).send({ msg: "bad request" });
+      break;
+    case "42601":
+    case "23502":
+      res.status(400).send({ msg: "invalid body" });
+      break;
+    case "23503":
+      res.status(404).send({ msg: "not found" });
+      break;
+    default:
+      next(err);
+  }
 }
 
-module.exports = { customErrorHandler, psqlErrorHandler };
+function displayError(err, req, res, next) {
+  console.log("error: ", err);
+  console.log("error code: ", err.code);
+  next(err);
+}
+
+module.exports = { customErrorHandler, psqlErrorHandler, displayError };
