@@ -14,7 +14,7 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "serves a single article object corresponding to article_id",
+    "description": "serves a single article object corresponding to article_id with additional property of comment_count",
     "exampleResponse": {
       "article": {
         "article_id": 1,
@@ -24,6 +24,7 @@
         "body": "I find this existence challenging",
         "created_at": 1594329060000,
         "votes": 100,
+        "comment_count": 11,
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
     }
