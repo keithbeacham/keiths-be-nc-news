@@ -252,6 +252,58 @@ describe("/api/articles", () => {
           });
       });
     });
+    describe("GET ?", () => {
+      test("GET 200: responds with 12 articles when sent query string of topic=mitch", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+          });
+      });
+      test("GET 200: responds with articles each with properties of article_id, title, author, body, created_at, article_img_url, comment_count, votes and with a topic property of value 'mitch'", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(12);
+            articles.forEach((article) => {
+              expect(article).toMatchObject({
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: "mitch",
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(Number),
+              });
+            });
+          });
+      });
+      test("GET 200: responds with array of articles ordered by created_at descending", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+      test("GET 400: reponds with status 400 and msg 'bad data' when query is invalid", () => {
+        return request(app)
+          .get("/api/articles?invalid_key=mitch")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad data");
+          });
+      });
+      test("GET 200: reponds with status 200 and empty array when query value is not in database", () => {
+        return request(app)
+          .get("/api/articles?topic=invalid_topic")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toEqual([]);
+          });
+      });
+    });
   });
   describe("/api/articles/:article_id/comments", () => {
     describe("GET", () => {

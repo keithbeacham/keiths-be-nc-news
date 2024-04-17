@@ -1,7 +1,7 @@
 const {
   selectTopics,
   selectArticleById,
-  selectAllArticles,
+  selectArticles,
   selectCommentsByArticleId,
   insertCommentByArticleId,
   updateArticleById,
@@ -34,10 +34,21 @@ function getArticleById(req, res, next) {
     });
 }
 
-function getAllArticles(req, res, next) {
-  return selectAllArticles().then((articles) => {
-    res.status(200).send({ articles });
-  });
+function getArticles(req, res, next) {
+  if (
+    Object.keys(req.query).length &&
+    !Object.keys(req.query).includes("topic")
+  ) {
+    next({ status: 400, msg: "bad data" });
+  }
+  const { topic } = req.query;
+  return selectArticles(topic)
+    .then((articles) => {
+      res.status(200).send({ articles });
+    })
+    .catch((err) => {
+      next(err);
+    });
 }
 
 function getCommentsByArticleId(req, res, next) {
@@ -76,9 +87,6 @@ function patchArticleById(req, res, next) {
   const { article_id } = req.params;
   const { body: newVote } = req;
 
-  // if (!newVote.inc_votes) {
-  //   next({ status: 400, msg: "invalid body" });
-  // }
   return Promise.all([
     updateArticleById(article_id, newVote),
     selectArticleById(article_id),
@@ -96,7 +104,7 @@ module.exports = {
   getAllTopics,
   getEndpoints,
   getArticleById,
-  getAllArticles,
+  getArticles,
   getCommentsByArticleId,
   postCommentByArticleId,
   patchArticleById,
