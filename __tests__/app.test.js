@@ -428,4 +428,44 @@ describe("/api/articles", () => {
       });
     });
   });
+  describe("/api/comments/:comment_id", () => {
+    describe("DELETE", () => {
+      test("DELETE 204: returns status 204 and no content when valid comment_id sent", () => {
+        return request(app)
+          .delete("/api/comments/1")
+          .expect(204)
+          .then(({ body }) => {
+            expect(body).toEqual({});
+          });
+      });
+      test("DELETE 204: removes given comment from database when valid comment_id sent", () => {
+        return request(app)
+          .delete("/api/comments/16")
+          .then(() => {
+            return request(app)
+              .get("/api/articles/6/comments")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments).toEqual([]);
+              });
+          });
+      });
+      test("DELETE 400: returns status 400 and message 'bad request' when invalid comment_id sent", () => {
+        return request(app)
+          .delete("/api/comments/invalid_comment_id")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("DELETE 404: returns status 404 and message 'not found' when comment_id is valid but does not exist in the database", () => {
+        return request(app)
+          .delete("/api/comments/9999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
+          });
+      });
+    });
+  });
 });

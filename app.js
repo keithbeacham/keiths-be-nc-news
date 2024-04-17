@@ -8,7 +8,9 @@ const {
   getCommentsByArticleId,
   postCommentByArticleId,
   patchArticleById,
-} = require("./controllers/controllers");
+} = require("./controllers/articles.controllers");
+const { customErrorHandler, psqlErrorHandler } = require("./errors/index");
+const { deleteCommentById } = require("./controllers/comments.controllers");
 
 const app = express();
 
@@ -22,26 +24,9 @@ app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 app.patch("/api/articles/:article_id", patchArticleById);
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
-app.use((err, req, res, next) => {
-  if (err.status && err.msg) {
-    res.status(err.status).send({ msg: err.msg });
-  } else next(err);
-});
-app.use((err, req, res, next) => {
-  if (err.code === "22P02") {
-    res.status(400).send({ msg: "bad request" });
-  } else next(err);
-});
-app.use((err, req, res, next) => {
-  if (err.code === "42601") {
-    res.status(400).send({ msg: "invalid body" });
-  } else next(err);
-});
-app.use((err, req, res, next) => {
-  if (err.code === "23503") {
-    res.status(404).send({ msg: "not found" });
-  } else next(err);
-});
+app.use(customErrorHandler);
+app.use(psqlErrorHandler);
 
 module.exports = app;
