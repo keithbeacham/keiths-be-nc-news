@@ -23,7 +23,7 @@ function selectArticleById(articleId) {
     });
 }
 
-function selectAllArticles() {
+function selectArticles(topic = "%") {
   return db
     .query(
       `
@@ -32,8 +32,10 @@ function selectAllArticles() {
     FROM articles
     LEFT JOIN comments 
     ON articles.article_id = comments.article_id 
+    WHERE topic LIKE $1 
     GROUP BY comments.article_id, articles.article_id 
-    ORDER BY articles.created_at DESC ;`
+    ORDER BY articles.created_at DESC ;`,
+      [topic]
     )
     .then(({ rows }) => {
       return rows;
@@ -95,7 +97,7 @@ function checkIfUserExists(username) {
 module.exports = {
   selectTopics,
   selectArticleById,
-  selectAllArticles,
+  selectArticles,
   selectCommentsByArticleId,
   insertCommentByArticleId,
   updateArticleById,

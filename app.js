@@ -4,7 +4,7 @@ const {
   getAllTopics,
   getEndpoints,
   getArticleById,
-  getAllArticles,
+  getArticles,
   getCommentsByArticleId,
   postCommentByArticleId,
   patchArticleById,
@@ -25,7 +25,7 @@ app.get("/api/healthcheck", healthCheck);
 app.get("/api/topics", getAllTopics);
 app.get("/api", getEndpoints);
 app.get("/api/articles/:article_id", getArticleById);
-app.get("/api/articles", getAllArticles);
+app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 app.patch("/api/articles/:article_id", patchArticleById);
@@ -34,6 +34,5 @@ app.get("/api/users", getAllUsers);
 
 app.use(customErrorHandler);
 app.use(psqlErrorHandler);
-app.use(displayError);
 
 module.exports = app;

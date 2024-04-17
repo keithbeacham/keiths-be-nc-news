@@ -29,8 +29,8 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles, default ordered by created_at descending, not including body, including comment_count",
-    "queries": [],
+    "description": "serves an array of all articles, default ordered by created_at descending, not including body, including comment_count. Can specify a topic value to filter the output",
+    "queries": ["topic"],
     "exampleResponse": {
       "articles": [
         {
