@@ -37,12 +37,8 @@ function getArticleById(req, res, next) {
 
 function getArticles(req, res, next) {
   const validQueries = ["topic", "sort_by", "order"];
-  if (
-    Object.keys(req.query).some((query) => {
-      return !validQueries.includes(query);
-    })
-  ) {
-    next({ status: 404, msg: "not found" });
+  if (Object.keys(req.query).some((query) => !validQueries.includes(query))) {
+    next({ status: 400, msg: "bad data" });
   }
   const { topic, sort_by, order } = req.query;
   return Promise.all([

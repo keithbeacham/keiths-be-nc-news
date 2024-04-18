@@ -291,12 +291,12 @@ describe("/api/articles", () => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
           });
       });
-      test("GET 404: responds with status 404 and msg 'not found' when query is not 'topic'", () => {
+      test("GET 400: responds with status 400 and msg 'bad data' when query is not 'topic'", () => {
         return request(app)
           .get("/api/articles?invalid_key=mitch")
-          .expect(404)
+          .expect(400)
           .then(({ body: { msg } }) => {
-            expect(msg).toBe("not found");
+            expect(msg).toBe("bad data");
           });
       });
       test("GET 404: reponds with status 404 and msg 'not found' when query value is not in database", () => {
@@ -602,6 +602,31 @@ describe("/api/articles", () => {
               });
             });
           });
+      });
+    });
+    describe("/api/users/:username", () => {
+      describe("GET", () => {
+        test("GET 200: returns 200 and a user object with the properties of username, avatar_url and name with the values equal to the username which was sent", () => {
+          return request(app)
+            .get("/api/users/lurker")
+            .expect(200)
+            .then(({ body: { user } }) => {
+              expect(user).toMatchObject({
+                username: "lurker",
+                name: "do_nothing",
+                avatar_url:
+                  "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+              });
+            });
+        });
+        test("GET 404: returns 404 and a msg 'not found' when sent a username which doesnt exist in the database", () => {
+          return request(app)
+            .get("/api/users/invalid_username")
+            .expect(404)
+            .then(({ body: { msg } }) => {
+              expect(msg).toBe("not found");
+            });
+        });
       });
     });
   });
