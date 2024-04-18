@@ -599,17 +599,10 @@ describe("/api/articles", () => {
   });
   describe("/api/users", () => {
     describe("GET", () => {
-      test("GET 200: returns 200 and an array of 4 users", () => {
+      test("GET 200: returns 200 and an array of 4 user objects containing username, name and avatar_url properties each of type 'string'", () => {
         return request(app)
           .get("/api/users")
           .expect(200)
-          .then(({ body: { users } }) => {
-            expect(users.length).toBe(4);
-          });
-      });
-      test("GET 200: returns an array of user objects containing username, name and avatar_url properties each of type 'string'", () => {
-        return request(app)
-          .get("/api/users")
           .then(({ body: { users } }) => {
             expect(users.length).toBe(4);
             users.forEach((user) => {
