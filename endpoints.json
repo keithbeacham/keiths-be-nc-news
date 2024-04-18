@@ -101,6 +101,20 @@
     "description": "deletes the given comment in the database, returns 204 and no body content.",
     "exampleResponse": {}
   },
+  "PATCH /api/comments/:comment_id": {
+    "description": "increments the votes property of the given comment by the value passed in the request object. Returns 200 and the updated comment object.",
+    "exampleRequest": {
+      "inc_votes": 10
+    },
+    "exampleResponse": {
+      "comment_id": 7,
+      "body": "I hate streaming noses",
+      "votes": 11,
+      "author": "icellusedkars",
+      "article_id": 1,
+      "created_at": 1604437200000
+    }
+  },
   "GET /api/users": {
     "description": "serves an array of all users including username, name and avatar_url",
     "queries": [],

@@ -88,7 +88,7 @@ function updateArticleById(articleId, newVote) {
         SET votes = votes + $1
         WHERE article_id = $2 
         RETURNING * ;`,
-      [newVote.inc_votes, articleId]
+      [newVote, articleId]
     )
     .then(({ rows }) => {
       return rows[0];
