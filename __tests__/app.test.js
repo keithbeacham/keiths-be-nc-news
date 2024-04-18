@@ -261,6 +261,14 @@ describe("/api/articles", () => {
             expect(articles.length).toBe(12);
           });
       });
+      test("GET 200: responds with 0 articles when sent query string of topic=paper", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(0);
+          });
+      });
       test("GET 200: responds with articles each with properties of article_id, title, author, body, created_at, article_img_url, comment_count, votes and with a topic property of value 'mitch'", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
@@ -287,20 +295,20 @@ describe("/api/articles", () => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
           });
       });
-      test("GET 200: responds with status 200 and unfiltered array of all articles when query is not 'topic'", () => {
+      test("GET 404: responds with status 404 and msg 'not found' when query is not 'topic'", () => {
         return request(app)
           .get("/api/articles?invalid_key=mitch")
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles.length).toBe(13);
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
           });
       });
-      test("GET 200: reponds with status 200 and empty array when query value is not in database", () => {
+      test("GET 404: reponds with status 404 and msg 'not found' when query value is not in database", () => {
         return request(app)
           .get("/api/articles?topic=invalid_topic")
-          .expect(200)
-          .then(({ body: { articles } }) => {
-            expect(articles).toEqual([]);
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
           });
       });
     });

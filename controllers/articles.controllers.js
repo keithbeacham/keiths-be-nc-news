@@ -5,7 +5,8 @@ const {
   selectCommentsByArticleId,
   insertCommentByArticleId,
   updateArticleById,
-  checkIfUserExists,
+  checkUserExists,
+  checkTopicExists,
 } = require("../models/articles.models");
 const endpoints = require("../endpoints.json");
 
@@ -35,9 +36,20 @@ function getArticleById(req, res, next) {
 }
 
 function getArticles(req, res, next) {
+  const validQueries = ["topic", "sort_by", "order"];
+  if (
+    Object.keys(req.query).some((query) => {
+      return !validQueries.includes(query);
+    })
+  ) {
+    next({ status: 404, msg: "not found" });
+  }
   const { topic, sort_by, order } = req.query;
-  return selectArticles(topic, sort_by, order)
-    .then((articles) => {
+  return Promise.all([
+    selectArticles(topic, sort_by, order),
+    checkTopicExists(topic),
+  ])
+    .then(([articles]) => {
       res.status(200).send({ articles });
     })
     .catch((err) => {
@@ -67,7 +79,7 @@ function postCommentByArticleId(req, res, next) {
   }
   return Promise.all([
     insertCommentByArticleId(article_id, newComment),
-    checkIfUserExists(newComment.username),
+    checkUserExists(newComment.username),
   ])
     .then(([comment]) => {
       res.status(201).send({ comment });
