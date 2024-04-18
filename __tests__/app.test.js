@@ -133,7 +133,7 @@ describe("/api/articles", () => {
       });
     });
     describe("PATCH", () => {
-      test("PATCH 200: responds with 200 status and article object when valid request object sent", () => {
+      test("PATCH 200: responds with 200 status and article object when valid request object sent, returned object has same article_id as that sent and votes has been incremented by value sent", () => {
         const patchObj = { inc_votes: 5 };
         return request(app)
           .patch("/api/articles/1")
@@ -143,24 +143,13 @@ describe("/api/articles", () => {
             expect(article).toMatchObject({
               author: expect.any(String),
               title: expect.any(String),
-              article_id: expect.any(Number),
+              article_id: 1,
               body: expect.any(String),
               topic: expect.any(String),
               created_at: expect.any(String),
-              votes: expect.any(Number),
+              votes: 105,
               article_img_url: expect.any(String),
             });
-          });
-      });
-      test("PATCH 200: returned article object has same article_id as that sent and votes has been incremented by value sent", () => {
-        const patchObj = { inc_votes: 5 };
-        return request(app)
-          .patch("/api/articles/1")
-          .send(patchObj)
-          .expect(200)
-          .then(({ body: { article } }) => {
-            expect(article.article_id).toBe(1);
-            expect(article.votes).toBe(105);
           });
       });
       test("PATCH 404: responds with 404 and msg 'not found' when sent a valid article_id which does not exist in the database", () => {
@@ -192,7 +181,7 @@ describe("/api/articles", () => {
             expect(body.msg).toBe("invalid body");
           });
       });
-      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object does not include <inc_votes> property", () => {
+      test("PATCH 400: responds with 400 and msg 'bad request' when request object does not include <inc_votes> property", () => {
         const patchObj = { more_votes: 100 };
         return request(app)
           .patch("/api/articles/2")
@@ -202,7 +191,7 @@ describe("/api/articles", () => {
             expect(body.msg).toBe("invalid body");
           });
       });
-      test("PATCH 400: reposnds with 400 and msg 'bad request' when request object includes <inc_votes> property with incorrect type of value", () => {
+      test("PATCH 400: responds with 400 and msg 'bad request' when request object includes <inc_votes> property with incorrect type of value", () => {
         const patchObj = { inc_votes: "invalid_type" };
         return request(app)
           .patch("/api/articles/2")
