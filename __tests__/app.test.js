@@ -370,6 +370,131 @@ describe("/api/articles", () => {
           });
       });
     });
+    describe("POST", () => {
+      test("POST 201: returns status 201 and a complete article object with votes=0 and comment_count=0 when sent a valid request body", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            author: "lurker",
+            title: "a day in the life",
+            body: "it all started quite normally that day...",
+            topic: "mitch",
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          })
+          .expect(201)
+          .then(({ body: { article } }) => {
+            expect(article).toMatchObject({
+              article_id: expect.any(Number),
+              author: "lurker",
+              title: "a day in the life",
+              body: "it all started quite normally that day...",
+              topic: "mitch",
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              votes: 0,
+              created_at: expect.any(String),
+              comment_count: 0,
+            });
+          });
+      });
+      test("POST 201: inserts the default article_img_url in the comment if none is specified in the request body", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            author: "lurker",
+            title: "a day in the life",
+            body: "it all started quite normally that day...",
+            topic: "mitch",
+          })
+          .expect(201)
+          .then(({ body: { article } }) => {
+            expect(article.article_img_url).toBe(
+              "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
+            );
+          });
+      });
+      test("POST 404: returns 404 and msg 'not found' if author does not exist in the database", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            author: "invalid_author",
+            title: "a day in the life",
+            body: "it all started quite normally that day...",
+            topic: "mitch",
+          })
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
+          });
+      });
+      test("POST 404: returns 404 and msg 'not found' if topic does not exist in the database", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            author: "lurker",
+            title: "a day in the life",
+            body: "it all started quite normally that day...",
+            topic: "invalid_topic",
+          })
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
+          });
+      });
+      test("POST 400: returns 400 and msg 'invalid body' if author key is missing", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            title: "a day in the life",
+            body: "it all started quite normally that day...",
+            topic: "mitch",
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("invalid body");
+          });
+      });
+      test("POST 400: returns 400 and msg 'invalid body' if title key is missing", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            author: "lurker",
+            body: "it all started quite normally that day...",
+            topic: "mitch",
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("invalid body");
+          });
+      });
+      test("POST 400: returns 400 and msg 'invalid body' if body key is missing", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            author: "lurker",
+            title: "a day in the life",
+            topic: "mitch",
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("invalid body");
+          });
+      });
+      test("POST 400: returns 400 and msg 'invalid body' if topic key is missing", () => {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            author: "lurker",
+            title: "a day in the life",
+            body: "it all started quite normally that day...",
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("invalid body");
+          });
+      });
+    });
   });
   describe("/api/articles/:article_id/comments", () => {
     describe("GET", () => {
