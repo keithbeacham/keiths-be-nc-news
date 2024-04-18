@@ -23,23 +23,31 @@ function selectArticleById(articleId) {
     });
 }
 
-function selectArticles(topic = "%") {
-  return db
-    .query(
-      `
-    SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, 
-    COUNT(comments.article_id)::INT AS comment_count
-    FROM articles
-    LEFT JOIN comments 
-    ON articles.article_id = comments.article_id 
-    WHERE topic LIKE $1 
-    GROUP BY comments.article_id, articles.article_id 
-    ORDER BY articles.created_at DESC ;`,
-      [topic]
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+function selectArticles(topic = "%", sortBy = "created_at", order = "DESC") {
+  const validOrder = ["ASC", "DESC"];
+  const validSortKeys = [
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+    "article_img_url",
+  ];
+  if (!validSortKeys.includes(sortBy) || !validOrder.includes(order)) {
+    return Promise.reject({ status: 400, msg: "bad data" });
+  }
+  const sqlStr = `
+  SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, 
+  COUNT(comments.article_id)::INT AS comment_count
+  FROM articles
+  LEFT JOIN comments 
+  ON articles.article_id = comments.article_id 
+  WHERE topic LIKE $1 
+  GROUP BY comments.article_id, articles.article_id 
+  ORDER BY articles.${sortBy} ${order} ;`;
+  return db.query(sqlStr, [topic]).then(({ rows }) => {
+    return rows;
+  });
 }
 
 function selectCommentsByArticleId(articleId) {
