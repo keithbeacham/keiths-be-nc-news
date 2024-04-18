@@ -118,6 +118,24 @@ function checkTopicExists(topic) {
     });
 }
 
+function insertArticle(author, title, body, topic, article_img_url) {
+  const formatArr = [[author, title, body, topic]];
+  let formatStr = "INSERT INTO articles (author, title, body, topic";
+  const endStr = "VALUES %L RETURNING * ;";
+
+  if (article_img_url) {
+    formatStr += ", article_img_url) " + endStr;
+    formatArr[0].push(article_img_url);
+  } else {
+    formatStr += ") " + endStr;
+  }
+  const sqlStr = format(formatStr, formatArr);
+  return db.query(sqlStr).then(({ rows }) => {
+    rows[0].comment_count = 0;
+    return rows[0];
+  });
+}
+
 module.exports = {
   selectTopics,
   selectArticleById,
@@ -127,4 +145,5 @@ module.exports = {
   updateArticleById,
   checkUserExists,
   checkTopicExists,
+  insertArticle,
 };

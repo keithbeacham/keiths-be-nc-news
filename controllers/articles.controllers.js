@@ -7,6 +7,7 @@ const {
   updateArticleById,
   checkUserExists,
   checkTopicExists,
+  insertArticle,
 } = require("../models/articles.models");
 const endpoints = require("../endpoints.json");
 
@@ -101,6 +102,18 @@ function patchArticleById(req, res, next) {
     });
 }
 
+function postArticle(req, res, next) {
+  const { author, title, body, topic, article_img_url } = req.body;
+
+  return insertArticle(author, title, body, topic, article_img_url)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   healthCheck,
   getAllTopics,
@@ -110,4 +123,5 @@ module.exports = {
   getCommentsByArticleId,
   postCommentByArticleId,
   patchArticleById,
+  postArticle,
 };
