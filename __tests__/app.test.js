@@ -124,6 +124,13 @@ describe("/api/articles", () => {
             expect(body.msg).toBe("bad request");
           });
       });
+      test("GET 200: responds with property of comment_count in article object which equals the total number of comments referencing this article", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .then(({ body: { article } }) => {
+            expect(article.comment_count).toBe(11);
+          });
+      });
     });
     describe("PATCH", () => {
       test("PATCH 200: responds with 200 status and article object when valid request object sent", () => {

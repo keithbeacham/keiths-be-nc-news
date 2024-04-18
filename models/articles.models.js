@@ -11,9 +11,12 @@ function selectArticleById(articleId) {
   return db
     .query(
       `
-    SELECT * 
+    SELECT articles.author, title, articles.article_id, topic, articles.body, articles.created_at, articles.votes, article_img_url, 
+    COUNT(comments.article_id)::INT as comment_count 
     FROM articles
-    WHERE articles.article_id = $1 ;`,
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    WHERE articles.article_id = $1 
+    GROUP BY comments.article_id, articles.article_id;`,
       [articleId]
     )
     .then(({ rows }) => {
