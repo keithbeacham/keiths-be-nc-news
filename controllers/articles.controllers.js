@@ -87,10 +87,10 @@ function postCommentByArticleId(req, res, next) {
 
 function patchArticleById(req, res, next) {
   const { article_id } = req.params;
-  const { body: newVote } = req;
+  const { inc_votes } = req.body;
 
   return Promise.all([
-    updateArticleById(article_id, newVote),
+    updateArticleById(article_id, inc_votes),
     selectArticleById(article_id),
   ])
     .then(([article]) => {

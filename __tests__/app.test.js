@@ -585,6 +585,73 @@ describe("/api/articles", () => {
           });
       });
     });
+    describe("PATCH", () => {
+      test("PATCH 200: responds with status 200 and an updated comment object when sent a request object with property inc_votes. The returned object has its votes property incremented by the value of inc_votes", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .send({ inc_votes: 5 })
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment).toMatchObject({
+              comment_id: 1,
+              body: expect.any(String),
+              votes: 21,
+              author: expect.any(String),
+              article_id: expect.any(Number),
+              created_at: expect.any(String),
+            });
+          });
+      });
+      test("PATCH 404: responds with 404 and msg 'not found' when sent a valid comment_id which does not exist in the database", () => {
+        const patchObj = { inc_votes: 5 };
+        return request(app)
+          .patch("/api/comments/9999")
+          .send(patchObj)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("not found");
+          });
+      });
+      test("PATCH 400: responds with 400 and msg 'bad request' when invalid comment_id type sent", () => {
+        const patchObj = { inc_votes: 5 };
+        return request(app)
+          .patch("/api/comments/invalid_type")
+          .send(patchObj)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("bad request");
+          });
+      });
+      test("PATCH 400: responds with 400 and msg 'bad request' when request object is empty", () => {
+        return request(app)
+          .patch("/api/comments/2")
+          .send({})
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("invalid body");
+          });
+      });
+      test("PATCH 400: responds with 400 and msg 'bad request' when request object does not include <inc_votes> property", () => {
+        const patchObj = { more_votes: 100 };
+        return request(app)
+          .patch("/api/comments/2")
+          .send(patchObj)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("invalid body");
+          });
+      });
+      test("PATCH 400: responds with 400 and msg 'bad request' when request object includes <inc_votes> property with incorrect type of value", () => {
+        const patchObj = { inc_votes: "invalid_type" };
+        return request(app)
+          .patch("/api/comments/2")
+          .send(patchObj)
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("bad request");
+          });
+      });
+    });
   });
   describe("/api/users", () => {
     describe("GET", () => {
