@@ -127,6 +127,42 @@ describe("/api/topics", () => {
           expect(msg).toBe("invalid body");
         });
     });
+    test("POST 400: returns 400 and msg 'invalid body' if 'description' property is empty", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "topic name here",
+          description: "",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid body");
+        });
+    });
+    test("POST 400: returns 400 and msg 'invalid body' if 'slug' property is empty", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "",
+          description: "description",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid body");
+        });
+    });
+    test("POST 400: returns 400 and msg 'invalid body' if 'slug' value already exists in the database", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "cats",
+          description: "description",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid body");
+        });
+    });
   });
 });
 describe("/api", () => {
