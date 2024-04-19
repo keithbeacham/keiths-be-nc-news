@@ -15,6 +15,7 @@ function psqlErrorHandler(err, req, res, next) {
       break;
     case "42601":
     case "23502":
+    case "23505":
       res.status(400).send({ msg: "invalid body" });
       break;
     case "23503":
