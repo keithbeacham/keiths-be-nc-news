@@ -1,25 +1,18 @@
 const {
-  selectTopics,
   selectArticleById,
   selectArticles,
   selectCommentsByArticleId,
   insertCommentByArticleId,
   updateArticleById,
   checkUserExists,
-  checkTopicExists,
   insertArticle,
   countArticles,
 } = require("../models/articles.models");
+const { checkTopicExists } = require("../models/topics.models");
 const endpoints = require("../endpoints.json");
 
 function healthCheck(req, res, next) {
   res.status(200).send({ msg: "server online" });
-}
-
-function getAllTopics(req, res, next) {
-  return selectTopics().then((topics) => {
-    res.status(200).send({ topics });
-  });
 }
 
 function getEndpoints(req, res, next) {
@@ -137,7 +130,6 @@ function postArticle(req, res, next) {
 
 module.exports = {
   healthCheck,
-  getAllTopics,
   getEndpoints,
   getArticleById,
   getArticles,

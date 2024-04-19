@@ -1,12 +1,6 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-function selectTopics() {
-  return db.query(`SELECT * FROM topics ;`).then(({ rows }) => {
-    return rows;
-  });
-}
-
 function selectArticleById(articleId) {
   return db
     .query(
@@ -81,8 +75,8 @@ function insertCommentByArticleId(articleId, newComment) {
   return db
     .query(
       ` INSERT INTO comments (body, author, article_id)
-            VALUES ($1, $2, $3)
-            RETURNING * ;`,
+        VALUES ($1, $2, $3)
+        RETURNING * ;`,
       [newComment.body, newComment.username, articleId]
     )
     .then(({ rows }) => {
@@ -112,19 +106,6 @@ function checkUserExists(username) {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "not found" });
       }
-    });
-}
-
-function checkTopicExists(topic) {
-  if (!topic) {
-    return;
-  }
-  return db
-    .query(`SELECT * FROM topics WHERE slug = $1 ;`, [topic])
-    .then(({ rows }) => {
-      if (!rows.length) {
-        return Promise.reject({ status: 404, msg: "not found" });
-      } else return rows;
     });
 }
 
@@ -158,14 +139,12 @@ function countArticles(topic = "%") {
 }
 
 module.exports = {
-  selectTopics,
   selectArticleById,
   selectArticles,
   selectCommentsByArticleId,
   insertCommentByArticleId,
   updateArticleById,
   checkUserExists,
-  checkTopicExists,
   insertArticle,
   countArticles,
 };

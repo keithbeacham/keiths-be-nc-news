@@ -13,6 +13,13 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "sent a topic object, adds it to the database and returns the added object",
+    "exampleRequest": { "slug": "football", "description": "Footie!" },
+    "exampleResponse": {
+      "topic": { "slug": "football", "description": "Footie!" }
+    }
+  },
   "GET /api/articles/:article_id": {
     "description": "serves a single article object corresponding to article_id with additional property of comment_count",
     "exampleResponse": {
