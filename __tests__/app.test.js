@@ -70,6 +70,64 @@ describe("/api/topics", () => {
         });
     });
   });
+  describe("POST", () => {
+    test("POST 201: returns status 201 and a complete topic object when sent a valid request body", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "topic name here",
+          description: "description here",
+        })
+        .expect(201)
+        .then(({ body: { topic } }) => {
+          expect(topic).toMatchObject({
+            slug: "topic name here",
+            description: "description here",
+          });
+        });
+    });
+    test("POST 201: adds the specified topic to the database", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "topic name here",
+          description: "description here",
+        })
+        .then(() => {
+          return request(app)
+            .get("/api/topics")
+            .then(({ body: { topics } }) => {
+              expect(topics.length).toBe(4);
+              expect(topics[3]).toMatchObject({
+                slug: "topic name here",
+                description: "description here",
+              });
+            });
+        });
+    });
+    test("POST 400: returns 400 and msg 'invalid body' if 'slug' key is missing", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          description: "description here",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid body");
+        });
+    });
+    test("POST 400: returns 400 and msg 'invalid body' if 'description' key is missing", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({
+          slug: "topic name here",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid body");
+        });
+    });
+  });
 });
 describe("/api", () => {
   test("GET 200: responds with 200 status", () => {
