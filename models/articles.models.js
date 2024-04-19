@@ -31,7 +31,7 @@ function selectArticles(
   sortBy = "created_at",
   order = "DESC",
   limit = null,
-  pageNum = "1"
+  pageNum = 1
 ) {
   const validOrder = ["ASC", "DESC"];
   const validSortKeys = [
@@ -61,14 +61,16 @@ function selectArticles(
   });
 }
 
-function selectCommentsByArticleId(articleId) {
+function selectCommentsByArticleId(articleId, limit = null, pageNum = 1) {
+  const offset = --pageNum * (limit ? limit : 0);
   return db
     .query(
       `
     SELECT * FROM comments 
     WHERE article_id = $1 
-    ORDER BY created_at DESC ;`,
-      [articleId]
+    ORDER BY created_at DESC 
+    LIMIT $2 OFFSET $3 ;`,
+      [articleId, limit, offset]
     )
     .then(({ rows }) => {
       return rows;

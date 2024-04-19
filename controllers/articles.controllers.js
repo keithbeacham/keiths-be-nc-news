@@ -64,9 +64,21 @@ function getArticles(req, res, next) {
 }
 
 function getCommentsByArticleId(req, res, next) {
+  const validQueries = ["limit", "p"];
+  const queryKeys = Object.keys(req.query);
+  if (queryKeys.some((query) => !validQueries.includes(query))) {
+    next({ status: 400, msg: "bad data" });
+  }
   const { article_id } = req.params;
+  let { limit, p } = req.query;
+  if (queryKeys.includes("limit") && !limit) {
+    limit = 10;
+  }
+  if (queryKeys.includes("p") && p <= 0) {
+    next({ status: 400, msg: "bad request" });
+  }
   return Promise.all([
-    selectCommentsByArticleId(article_id),
+    selectCommentsByArticleId(article_id, limit, p),
     selectArticleById(article_id),
   ])
     .then(([comments]) => {
