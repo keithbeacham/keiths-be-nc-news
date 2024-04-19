@@ -296,6 +296,56 @@ describe("/api/articles", () => {
           });
       });
     });
+    describe("DELETE", () => {
+      test("DELETE 204: returns status 204 and no content when valid article_id sent", () => {
+        return request(app)
+          .delete("/api/articles/1")
+          .expect(204)
+          .then(({ body }) => {
+            expect(body).toEqual({});
+          });
+      });
+      test("DELETE 204: removes given article from database when valid article_id sent", () => {
+        return request(app)
+          .delete("/api/articles/1")
+          .then(() => {
+            return request(app)
+              .get("/api/articles/1")
+              .expect(404)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("not found");
+              });
+          });
+      });
+      test("DELETE 204: removes all comments associated with deleted article from database when valid article_id sent", () => {
+        return request(app)
+          .delete("/api/articles/3")
+          .then(() => {
+            return request(app)
+              .get("/api/comments/10")
+              .expect(404)
+              .then(() => {
+                return request(app).get("/api/comments/11").expect(404);
+              });
+          });
+      });
+      test("DELETE 400: returns status 400 and message 'bad request' when invalid article_id sent", () => {
+        return request(app)
+          .delete("/api/articles/invalid_article_id")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("DELETE 404: returns status 404 and message 'not found' when article_id is valid but does not exist in the database", () => {
+        return request(app)
+          .delete("/api/articles/9999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
+          });
+      });
+    });
   });
   describe("/api/articles", () => {
     describe("GET", () => {
@@ -1187,6 +1237,31 @@ describe("/api/articles", () => {
           });
       });
     });
+    describe("GET", () => {
+      test("GET 200: returns 200 and the requested comment object", () => {
+        return request(app)
+          .get("/api/comments/1")
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment).toMatchObject({
+              comment_id: 1,
+              body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+              votes: 16,
+              author: "butter_bridge",
+              article_id: 9,
+              created_at: expect.any(String),
+            });
+          });
+      });
+      test("GET 404: returns 404 and msg 'not found' when the requested comment does not exist in the database", () => {
+        return request(app)
+          .get("/api/comments/9999")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
+          });
+      });
+    });
   });
   describe("/api/users", () => {
     describe("GET", () => {
@@ -1206,29 +1281,29 @@ describe("/api/articles", () => {
           });
       });
     });
-    describe("/api/users/:username", () => {
-      describe("GET", () => {
-        test("GET 200: returns 200 and a user object with the properties of username, avatar_url and name with the values equal to the username which was sent", () => {
-          return request(app)
-            .get("/api/users/lurker")
-            .expect(200)
-            .then(({ body: { user } }) => {
-              expect(user).toMatchObject({
-                username: "lurker",
-                name: "do_nothing",
-                avatar_url:
-                  "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-              });
+  });
+  describe("/api/users/:username", () => {
+    describe("GET", () => {
+      test("GET 200: returns 200 and a user object with the properties of username, avatar_url and name with the values equal to the username which was sent", () => {
+        return request(app)
+          .get("/api/users/lurker")
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toMatchObject({
+              username: "lurker",
+              name: "do_nothing",
+              avatar_url:
+                "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
             });
-        });
-        test("GET 404: returns 404 and a msg 'not found' when sent a username which doesnt exist in the database", () => {
-          return request(app)
-            .get("/api/users/invalid_username")
-            .expect(404)
-            .then(({ body: { msg } }) => {
-              expect(msg).toBe("not found");
-            });
-        });
+          });
+      });
+      test("GET 404: returns 404 and a msg 'not found' when sent a username which doesnt exist in the database", () => {
+        return request(app)
+          .get("/api/users/invalid_username")
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("not found");
+          });
       });
     });
   });
