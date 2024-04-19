@@ -8,6 +8,7 @@ const {
   checkUserExists,
   checkTopicExists,
   insertArticle,
+  countArticles,
 } = require("../models/articles.models");
 const endpoints = require("../endpoints.json");
 
@@ -37,17 +38,25 @@ function getArticleById(req, res, next) {
 }
 
 function getArticles(req, res, next) {
-  const validQueries = ["topic", "sort_by", "order"];
-  if (Object.keys(req.query).some((query) => !validQueries.includes(query))) {
+  const validQueries = ["topic", "sort_by", "order", "limit", "p"];
+  const queryKeys = Object.keys(req.query);
+  if (queryKeys.some((query) => !validQueries.includes(query))) {
     next({ status: 400, msg: "bad data" });
   }
-  const { topic, sort_by, order } = req.query;
+  let { topic, sort_by, order, limit, p } = req.query;
+  if (queryKeys.includes("limit") && !limit) {
+    limit = 10;
+  }
+  if (queryKeys.includes("p") && p <= 0) {
+    next({ status: 400, msg: "bad request" });
+  }
   return Promise.all([
-    selectArticles(topic, sort_by, order),
+    selectArticles(topic, sort_by, order, limit, p),
+    countArticles(topic),
     checkTopicExists(topic),
   ])
-    .then(([articles]) => {
-      res.status(200).send({ articles });
+    .then(([articles, { total_count }]) => {
+      res.status(200).send({ articles, total_count });
     })
     .catch((err) => {
       next(err);

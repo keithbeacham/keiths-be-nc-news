@@ -9,6 +9,8 @@ function customErrorHandler(err, req, res, next) {
 function psqlErrorHandler(err, req, res, next) {
   switch (err.code) {
     case "22P02":
+    case "2201W":
+    case "2201X":
       res.status(400).send({ msg: "bad request" });
       break;
     case "42601":

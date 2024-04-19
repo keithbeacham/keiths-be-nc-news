@@ -26,7 +26,13 @@ function selectArticleById(articleId) {
     });
 }
 
-function selectArticles(topic = "%", sortBy = "created_at", order = "DESC") {
+function selectArticles(
+  topic = "%",
+  sortBy = "created_at",
+  order = "DESC",
+  limit = null,
+  pageNum = "1"
+) {
   const validOrder = ["ASC", "DESC"];
   const validSortKeys = [
     "title",
@@ -39,6 +45,7 @@ function selectArticles(topic = "%", sortBy = "created_at", order = "DESC") {
   if (!validSortKeys.includes(sortBy) || !validOrder.includes(order)) {
     return Promise.reject({ status: 400, msg: "bad data" });
   }
+  const offset = --pageNum * (limit ? limit : 0);
   const sqlStr = `
   SELECT articles.author, title, articles.article_id, topic, articles.created_at, articles.votes, article_img_url, 
   COUNT(comments.article_id)::INT AS comment_count
@@ -47,8 +54,9 @@ function selectArticles(topic = "%", sortBy = "created_at", order = "DESC") {
   ON articles.article_id = comments.article_id 
   WHERE topic LIKE $1 
   GROUP BY comments.article_id, articles.article_id 
-  ORDER BY articles.${sortBy} ${order} ;`;
-  return db.query(sqlStr, [topic]).then(({ rows }) => {
+  ORDER BY articles.${sortBy} ${order}
+  LIMIT $2 OFFSET $3 ;`;
+  return db.query(sqlStr, [topic, limit, offset]).then(({ rows }) => {
     return rows;
   });
 }
@@ -136,6 +144,17 @@ function insertArticle(author, title, body, topic, article_img_url) {
   });
 }
 
+function countArticles(topic = "%") {
+  const sqlStr = `
+  SELECT COUNT(article_id)::INT AS total_count
+  FROM articles
+  WHERE topic LIKE $1 
+  ;`;
+  return db.query(sqlStr, [topic]).then(({ rows }) => {
+    return rows[0];
+  });
+}
+
 module.exports = {
   selectTopics,
   selectArticleById,
@@ -146,4 +165,5 @@ module.exports = {
   checkUserExists,
   checkTopicExists,
   insertArticle,
+  countArticles,
 };
