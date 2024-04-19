@@ -1261,6 +1261,14 @@ describe("/api/articles", () => {
             expect(msg).toBe("not found");
           });
       });
+      test("GET 400: responds with 400 and msg 'bad request' when invalid comment_id type sent", () => {
+        return request(app)
+          .get("/api/comments/invalid_type")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("bad request");
+          });
+      });
     });
   });
   describe("/api/users", () => {
