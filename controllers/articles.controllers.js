@@ -7,6 +7,7 @@ const {
   checkUserExists,
   insertArticle,
   countArticles,
+  deleteArticle,
 } = require("../models/articles.models");
 const { checkTopicExists } = require("../models/topics.models");
 const endpoints = require("../endpoints.json");
@@ -128,6 +129,18 @@ function postArticle(req, res, next) {
     });
 }
 
+function deleteArticleById(req, res, next) {
+  const { article_id } = req.params;
+
+  return deleteArticle(article_id)
+    .then(() => {
+      res.status(204).send({});
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   healthCheck,
   getEndpoints,
@@ -137,4 +150,5 @@ module.exports = {
   postCommentByArticleId,
   patchArticleById,
   postArticle,
+  deleteArticleById,
 };

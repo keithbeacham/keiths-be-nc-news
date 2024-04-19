@@ -32,4 +32,16 @@ function patchCommentById(req, res, next) {
     });
 }
 
-module.exports = { deleteCommentById, patchCommentById };
+function getCommentById(req, res, next) {
+  const { comment_id } = req.params;
+
+  return selectCommentById(comment_id)
+    .then((comment) => {
+      res.status(200).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
+module.exports = { deleteCommentById, patchCommentById, getCommentById };

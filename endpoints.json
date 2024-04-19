@@ -129,6 +129,22 @@
       }
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the requested article and all comments associated with it. Returns 204 and empty object",
+    "exampleResponse": {}
+  },
+  "GET /api/comments/:comment_id": {
+    "description": "returns the comment object specified",
+    "queries": [],
+    "exampleResponse": {
+      "comment_id": 7,
+      "body": "I hate streaming noses",
+      "votes": 11,
+      "author": "icellusedkars",
+      "article_id": 1,
+      "created_at": 1604437200000
+    }
+  },
   "DELETE /api/comments/:comment_id": {
     "description": "deletes the given comment in the database, returns 204 and no body content.",
     "exampleResponse": {}
