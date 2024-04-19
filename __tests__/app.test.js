@@ -370,6 +370,184 @@ describe("/api/articles", () => {
           });
       });
     });
+    describe("GET ?limit & p", () => {
+      test("GET 200: retrieves 10 articles when limit is specified but no value set", () => {
+        return request(app)
+          .get("/api/articles?limit")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(10);
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles?limit=")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(10);
+              });
+          });
+      });
+      test("GET 200: retrieves number of articles requested when limit is specified with a value set", () => {
+        return request(app)
+          .get("/api/articles?limit=7")
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(7);
+          });
+      });
+      test("GET 200: retrieves no articles when limit is specified with a value set to 0", () => {
+        return request(app)
+          .get("/api/articles?limit=0")
+          .then(({ body: { articles } }) => {
+            expect(articles).toEqual([]);
+          });
+      });
+      test("GET 200: retrieves all articles when limit is specified with a value greater than the total number of articles in the database", () => {
+        return request(app)
+          .get("/api/articles?limit=20")
+          .then(({ body: { articles } }) => {
+            expect(articles.length).toBe(13);
+          });
+      });
+      test("GET 200: retrieves first 10 articles when limit is specified but no value set and p is specified as 1", () => {
+        let firstArticle = {};
+        return request(app)
+          .get("/api/articles")
+          .then(({ body: { articles } }) => {
+            firstArticle = articles[0];
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles?limit&p=1")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(10);
+                expect(articles[0]).toEqual(firstArticle);
+              });
+          });
+      });
+      test("GET 200: retrieves last 3 articles when limit is specified but no value set and p is specified as 2", () => {
+        let eleventhArticle = {};
+        return request(app)
+          .get("/api/articles")
+          .then(({ body: { articles } }) => {
+            eleventhArticle = articles[10];
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles?limit&p=2")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(3);
+                expect(articles[0]).toEqual(eleventhArticle);
+              });
+          });
+      });
+      test("GET 200: retrieves last 5 articles when limit is specified as 8 and p is specified as 2", () => {
+        let ninethArticle = {};
+        return request(app)
+          .get("/api/articles")
+          .then(({ body: { articles } }) => {
+            ninethArticle = articles[8];
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles?limit=8&p=2")
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(5);
+                expect(articles[0]).toEqual(ninethArticle);
+              });
+          });
+      });
+      test("GET 200: returns 200 and empty array when limit is specified as 10 and p is specified as 3", () => {
+        return request(app)
+          .get("/api/articles?limit&p=3")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toEqual([]);
+          });
+      });
+      test("GET 200: works with topic, sort_by and order queries", () => {
+        let eleventhArticle = {};
+        return request(app)
+          .get("/api/articles?topic=mitch&sort_by=author&order=ASC")
+          .then(({ body: { articles } }) => {
+            eleventhArticle = articles[10];
+          })
+          .then(() => {
+            return request(app)
+              .get(
+                "/api/articles?topic=mitch&sort_by=author&order=ASC&limit=5&p=3"
+              )
+              .expect(200)
+              .then(({ body: { articles } }) => {
+                expect(articles.length).toBe(2);
+                expect(articles[0]).toEqual(eleventhArticle);
+              });
+          });
+      });
+      test("GET 200: returns total_count property, displaying the total number of articles", () => {
+        return request(app)
+          .get("/api/articles")
+          .then(({ body: { total_count } }) => {
+            expect(total_count).toEqual(13);
+          });
+      });
+      test("GET 200: the total_count property is not affected by pagination", () => {
+        return request(app)
+          .get("/api/articles?limit=5&p=3")
+          .then(({ body: { total_count } }) => {
+            expect(total_count).toBe(13);
+          });
+      });
+      test("GET 200: the total_count property reflects the results of the topic filter", () => {
+        return request(app)
+          .get("/api/articles?topic=cats")
+          .then(({ body: { total_count } }) => {
+            expect(total_count).toBe(1);
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when limit is given an invalid value (wrong type)", () => {
+        return request(app)
+          .get("/api/articles?limit=invalid_type")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when limit is given an invalid value (out of range)", () => {
+        return request(app)
+          .get("/api/articles?limit=-1")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when p is specified as invalid (wrong type)", () => {
+        return request(app)
+          .get("/api/articles?p=invalid")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when p is specified as invalid (out of range)", () => {
+        return request(app)
+          .get("/api/articles?p=-1")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles?p=0")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("bad request");
+              });
+          });
+      });
+    });
     describe("POST", () => {
       test("POST 201: returns status 201 and a complete article object with votes=0 and comment_count=0 when sent a valid request body", () => {
         return request(app)

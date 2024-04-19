@@ -12,6 +12,6 @@ app.use(express.json());
 app.use("/api", apiRouter);
 app.use(customErrorHandler);
 app.use(psqlErrorHandler);
-app.use(displayError);
+// app.use(displayError);
 
 module.exports = app;

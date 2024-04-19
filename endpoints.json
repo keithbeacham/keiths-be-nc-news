@@ -30,8 +30,8 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles, default ordered by created_at descending, not including body, including comment_count. Can specify a topic value to filter the output, a sort_by key and order key to sort and order the returned array",
-    "queries": ["topic", "sort_by", "order"],
+    "description": "serves an array of all articles not including 'body' but including 'comment_count', default ordered by 'created_at' descending. Can specify a 'topic' value to filter the output by the requested topic; 'sort_by' and 'order' keys to sort and order the returned array; a 'limit' key to set the maximum number of articles returned in the array; and a 'p' key which works in combination with 'limit' to enable pages of articles to be returned each of length 'limit'. p=1 for the first page etc. Returns a total_count of all of the articles in the database after any filter has been applied but discounting any 'limit' or 'p' set.",
+    "queries": ["topic", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
       "articles": [
         {
@@ -44,7 +44,8 @@
           "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           "comment_count": 6
         }
-      ]
+      ],
+      "total_count": 15
     }
   },
   "POST /api/articles": {
