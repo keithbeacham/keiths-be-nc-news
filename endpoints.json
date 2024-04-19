@@ -72,7 +72,8 @@
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "serves an array of all comment objects corresponding to article_id, default ordered by created_at descending",
+    "description": "serves an array of all comment objects corresponding to article_id, default ordered by created_at descending. Accepts a 'limit' key to set the maximum number of comments returned in the array; and a 'p' key which works in combination with 'limit' to enable pages of comments to be returned each of length 'limit'. Default 'limit' value is 10 if 'limit' is specified, otherwise all comments are returned. p=1 for the first page etc. If 'p' is not specified or not set then it is set to a default of 1. ",
+    "queries": ["limit", "p"],
     "exampleResponse": {
       "comments": [
         {

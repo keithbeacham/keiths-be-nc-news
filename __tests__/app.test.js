@@ -733,6 +733,144 @@ describe("/api/articles", () => {
           });
       });
     });
+    describe("GET ?limit & p", () => {
+      test("GET 200: retrieves 10 comments when limit is specified but no value set", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBe(10);
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles/1/comments?limit=")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).toBe(10);
+              });
+          });
+      });
+      test("GET 200: retrieves number of comments requested when limit is specified with a value set", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=7")
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBe(7);
+          });
+      });
+      test("GET 200: retrieves no comments when limit is specified with a value set to 0", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=0")
+          .then(({ body: { comments } }) => {
+            expect(comments).toEqual([]);
+          });
+      });
+      test("GET 200: retrieves all comments when limit is specified with a value greater than the total number of comments in the database for the specified article", () => {
+        return request(app)
+          .get("/api/articles/3/comments?limit=20")
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBe(2);
+          });
+      });
+      test("GET 200: retrieves first 10 comments when limit is specified but no value set and p is specified as 1", () => {
+        let firstComment = {};
+        return request(app)
+          .get("/api/articles/1/comments")
+          .then(({ body: { comments } }) => {
+            firstComment = comments[0];
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles/1/comments?limit&p=1")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).toBe(10);
+                expect(comments[0]).toEqual(firstComment);
+              });
+          });
+      });
+      test("GET 200: retrieves last 1 comment when limit is specified but no value set and p is specified as 2", () => {
+        let eleventhComment = {};
+        return request(app)
+          .get("/api/articles/1/comments")
+          .then(({ body: { comments } }) => {
+            eleventhComment = comments[10];
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles/1/comments?limit&p=2")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).toBe(1);
+                expect(comments[0]).toEqual(eleventhComment);
+              });
+          });
+      });
+      test("GET 200: retrieves last 3 comments when limit is specified as 8 and p is specified as 2", () => {
+        let ninethComment = {};
+        return request(app)
+          .get("/api/articles/1/comments")
+          .then(({ body: { comments } }) => {
+            ninethComment = comments[8];
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles/1/comments?limit=8&p=2")
+              .expect(200)
+              .then(({ body: { comments } }) => {
+                expect(comments.length).toBe(3);
+                expect(comments[0]).toEqual(ninethComment);
+              });
+          });
+      });
+      test("GET 200: returns 200 and empty array when limit is specified as 10 and p is specified as 3", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit&p=3")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).toEqual([]);
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when limit is given an invalid value (wrong type)", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=invalid_type")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when limit is given an invalid value (out of range)", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=-1")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when p is specified as invalid (wrong type)", () => {
+        return request(app)
+          .get("/api/articles/1/comments?p=invalid")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("GET 400: returns 400 and msg 'bad request' when p is specified as invalid (out of range)", () => {
+        return request(app)
+          .get("/api/articles/3/comments?p=-1")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("bad request");
+          })
+          .then(() => {
+            return request(app)
+              .get("/api/articles/5/comments?p=0")
+              .expect(400)
+              .then(({ body: { msg } }) => {
+                expect(msg).toBe("bad request");
+              });
+          });
+      });
+    });
     describe("POST", () => {
       test("POST 201: returns 201 and the inserted comment object when sent a valid comment object", () => {
         const article_id = 1;
