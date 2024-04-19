@@ -30,7 +30,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles not including 'body' but including 'comment_count', default ordered by 'created_at' descending. Can specify a 'topic' value to filter the output by the requested topic; 'sort_by' and 'order' keys to sort and order the returned array; a 'limit' key to set the maximum number of articles returned in the array; and a 'p' key which works in combination with 'limit' to enable pages of articles to be returned each of length 'limit'. Default 'limit' value is 10 if 'limit' is specified, otherwise all articles are returned. p=1 for the first page etc. If 'p' is not specified or not set then it is set to a default of 1. Returns a total_count of all of the articles in the database after any filter has been applied but discounting any 'limit' or 'p' set.",
+    "description": "serves an array of all articles not including 'body' but including 'comment_count', default ordered by 'created_at' descending. Can specify a 'topic' value to filter the output by the requested topic; 'sort_by' and 'order' keys to sort and order the returned array; a 'limit' key to set the maximum number of articles returned in the array; and a 'p' key which works in combination with 'limit' to enable pages of articles to be returned each of length 'limit'. Default 'limit' value is 10 if 'limit' is specified, otherwise all articles are returned. p=1 for the first page etc. If 'p' is not specified or not set the it is set to a default of 1. Returns a total_count of all of the articles in the database after any filter has been applied but discounting any 'limit' or 'p' set.",
     "queries": ["topic", "sort_by", "order", "limit", "p"],
     "exampleResponse": {
       "articles": [
