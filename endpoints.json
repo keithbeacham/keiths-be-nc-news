@@ -36,6 +36,28 @@
       }
     }
   },
+  "PATCH /api/articles/:article_id": {
+    "description": "increments the <votes> property on the requested <article_id>, responding with the updated article object",
+    "exampleRequest": {
+      "inc_votes": 10
+    },
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "body": "I find this existence challenging",
+        "created_at": 1594329060000,
+        "votes": 110,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+    }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the requested article and all comments associated with it. Returns 204 and empty object",
+    "exampleResponse": {}
+  },
   "GET /api/articles": {
     "description": "serves an array of all articles not including 'body' but including 'comment_count', default ordered by 'created_at' descending. Can specify a 'topic' value to filter the output by the requested topic; 'sort_by' and 'order' keys to sort and order the returned array; a 'limit' key to set the maximum number of articles returned in the array; and a 'p' key which works in combination with 'limit' to enable pages of articles to be returned each of length 'limit'. Default 'limit' value is 10 if 'limit' is specified, otherwise all articles are returned. p=1 for the first page etc. If 'p' is not specified or not set the it is set to a default of 1. Returns a total_count of all of the articles in the database after any filter has been applied but discounting any 'limit' or 'p' set.",
     "queries": ["topic", "sort_by", "order", "limit", "p"],
@@ -110,28 +132,6 @@
         "created_at": 1602433380000
       }
     }
-  },
-  "PATCH /api/articles/:article_id": {
-    "description": "increments the <votes> property on the requested <article_id>, responding with the updated article object",
-    "exampleRequest": {
-      "inc_votes": 10
-    },
-    "exampleResponse": {
-      "article": {
-        "article_id": 1,
-        "title": "Living in the shadow of a great man",
-        "topic": "mitch",
-        "author": "butter_bridge",
-        "body": "I find this existence challenging",
-        "created_at": 1594329060000,
-        "votes": 110,
-        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-      }
-    }
-  },
-  "DELETE /api/articles/:article_id": {
-    "description": "deletes the requested article and all comments associated with it. Returns 204 and empty object",
-    "exampleResponse": {}
   },
   "GET /api/comments/:comment_id": {
     "description": "returns the comment object specified",
