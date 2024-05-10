@@ -1,6 +1,6 @@
 # Northcoders News API, developed by Keith Beacham
 
-Link to hosted version:
+Link to hosted version: https://keiths-be-nc-news.onrender.com/api/
 
 The project provides an api to a backend server hosting mythical news data covering topics, articles and comments. Available endpoints and their functions are described at the GET /api endpoint.
 
